@@ -41,6 +41,9 @@ function App() {
               {article.title}
             </a>
             <p>{new Date(article.published).toLocaleString()}</p>
+            {article.thumbnail && (
+              <img src={article.thumbnail} alt="Article Thumbnail" className="thumbnail" />
+            )}
           </div>
         ))}
       </div>

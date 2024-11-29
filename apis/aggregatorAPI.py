@@ -65,6 +65,10 @@ def boolean_search(entries, query):
     for entry in entries:
         tags = set(entry["tags"])
         if include <= tags and exclude.isdisjoint(tags):
+            if "archive.org/details" in entry["link"]:
+                item_id = entry["link"].split("/")[-1]
+                thumbnail_url = f"https://archive.org/services/img/{item_id}"
+                entry["thumbnail"] = thumbnail_url
             results.append(entry)
 
     print("Search results:", results)
