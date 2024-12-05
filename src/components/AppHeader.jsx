@@ -7,8 +7,7 @@ return(<div className="App-header">
 
           </div>
           <div className="rss-title">
-            <h1>RSS</h1>
-            <h1>Aggregator</h1>
+            <h1>Archive</h1>
           </div>
           
         </div>);}
