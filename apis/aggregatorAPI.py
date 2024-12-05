@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
 import feedparser
+import requests
 from xml.etree.ElementTree import Element, SubElement, tostring
 from flask_cors import CORS
-
+import re
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
@@ -30,21 +31,68 @@ feed_urls = [
     "https://www.flickr.com/services/feeds/photoset.gne?nsid=8933893@N08&set=72157604184970480&lang=en-us&format=atom"
 ]
 
+FLICKR_API_KEY = "715d330285540544f7323bc79dd188c2"
+
+
+def extract_photo_id(flickr_url):
+    """Extract photo ID from a Flickr URL."""
+    match = re.search(r'flickr\.com/photos/[^/]+/(\d+)', flickr_url)
+    return match.group(1) if match else None
+
+def get_flickr_thumbnail(photo_id):
+    """Fetch the thumbnail for a Flickr photo."""
+    if not photo_id:  # Ensure valid photo ID
+        return None
+
+    try:
+        api_url = f"https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key={FLICKR_API_KEY}&photo_id={photo_id}&format=json&nojsoncallback=1"
+        response = requests.get(api_url, timeout=5)  # Add timeout
+        response.raise_for_status()  # Handle HTTP errors
+        data = response.json()
+        if data.get("stat") != "ok":
+            return None
+        
+        # Look for the 'Small' size thumbnail
+        sizes = data.get("sizes", {}).get("size", [])
+        thumbnail = next((size for size in sizes if size["label"] == "Small"), None)
+        return thumbnail["source"] if thumbnail else None
+    except requests.RequestException as e:
+        print("Error fetching Flickr thumbnail:", e)
+        return None
+
+
 def fetch_feeds(urls):
+    """Fetch and process entries from multiple feeds, avoiding redundant thumbnails."""
     all_entries = []
-    for url in urls:
+    for url in set(urls):  # Deduplicate feed URLs
         feed = feedparser.parse(url)
         for entry in feed.entries:
             print("Processing entry:", entry)
-            tags = getattr(entry, "tags", [])
-            print("Tags:", tags)
-            all_entries.append({
+            
+            # Initialize entry data
+            processed_entry = {
                 "title": entry.title,
                 "link": entry.link,
                 "published": datetime(*entry.published_parsed[:6]),
-                "tags": [tag.term for tag in getattr(entry, 'tags', [])],
-            })
+                "tags": [tag.term for tag in getattr(entry, "tags", [])],
+                "thumbnail": None,
+            }
+
+            # Add thumbnail for archive.org
+            if "archive.org/details" in entry["link"] and not processed_entry["thumbnail"]:
+                item_id = entry["link"].split("/")[-1]
+                processed_entry["thumbnail"] = f"https://archive.org/services/img/{item_id}"
+            # Add thumbnail for Flickr
+            elif "flickr.com" in entry["link"] and not processed_entry["thumbnail"]:
+                photo_id = extract_photo_id(entry["link"])
+                if photo_id:
+                    processed_entry["thumbnail"] = get_flickr_thumbnail(photo_id)
+            
+            all_entries.append(processed_entry)
+    
     return sorted(all_entries, key=lambda x: x["published"], reverse=True)
+
+
 
 def deduplicate(entries):
     seen_links = set()
@@ -56,6 +104,7 @@ def deduplicate(entries):
     return unique_entries
 
 def boolean_search(entries, query):
+    """Perform boolean search with query, including thumbnail generation."""
     print("Query received:", query)
     terms = query.split()
     include = {term for term in terms if not term.startswith("-")}
@@ -65,10 +114,18 @@ def boolean_search(entries, query):
     for entry in entries:
         tags = set(entry["tags"])
         if include <= tags and exclude.isdisjoint(tags):
+            # Generate thumbnail for archive.org
             if "archive.org/details" in entry["link"]:
                 item_id = entry["link"].split("/")[-1]
                 thumbnail_url = f"https://archive.org/services/img/{item_id}"
                 entry["thumbnail"] = thumbnail_url
+            # Generate thumbnail for Flickr
+            elif "flickr.com" in entry["link"]:
+                photo_id = extract_photo_id(entry["link"])
+                if photo_id:
+                    thumbnail_url = get_flickr_thumbnail(photo_id)
+                    if thumbnail_url:
+                        entry["thumbnail"] = thumbnail_url
             results.append(entry)
 
     print("Search results:", results)

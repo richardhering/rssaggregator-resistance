@@ -1,38 +1,175 @@
 .App {
-  text-align: center;
-}
+  position: absolute;
+  bottom: 10px; /* Adjust this value to place it above the bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%; /* Adjust the width as needed */
+  display: flex;
+  z-index: 2;
+  flex-wrap: nowrap;
+  height: 100%;
+  flex-direction: column;
+  align-items: center; /* Center the content horizontally */}
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  min-height: 20vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content:center;
+  -webkit-text-stroke: 1px #282c34; /* Stroke width and color */
+  -webkit-text-fill-color: black;
+  font-size: calc(5px + 2vmin);
+}
+.card {
+  /* Set width of all cards to be the same */
+  width: 70vh; /* Adjust the width as necessary */
+  /* Add shadows to create the "card" effect */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  outline: rgb(150, 95, 95);
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 5px;
+  padding: 15px;
+  gap: 10px;
+  cursor: pointer;
+  background-color: white; /* Set background color to white */
+  /* Ensure text overflow handling */
+  overflow: hidden;
+  text-align: center;
+
+  margin: 20px;
+}
+
+.card a {
+  text-decoration: none;
+  color: inherit; /* Ensure the text inherits the color style */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.card .title {
+  /* Handling overflow in the title */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis if the text overflows */
+  width: 100%; /* Ensure it takes the full width */
+  text-align: center;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit; /* Ensure the text inherits the color style */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.thumbnail {
+  width: 100px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+p {
+  font-size: 0.9rem;
+  color: gray;
+}
+
+/* On mouse-over, add a deeper shadow */
+.card:hover {
+  box-shadow: 0 16px 24px 0 rgba(0,0,0,0.2);
+}
+
+/* Add some padding inside the card container */
+.container {
+  padding: 2px 16px;
+  outline: white;
+
+}
+
+
+
+
+
+.rss-aggregator{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vh;
+}
+
+.banner-container{
+  height: 10%;
+  width: 30%;
+  overflow: hidden;    /* Hide any content that overflows the container */
+
+}
+.banner-container img {
+  width: 100%;         /* Make the image take up the full width of the container */
+  height: 100%;        /* Make the image take up the full height of the container */
+  object-fit: cover;   /* Ensure the image scales properly while preserving aspect ratio */
+}
+
+.version-no{
+  align-self: flex-end;
+ margin-right: 10%;
+}
+
+.rss-title{
+  line-height: 0.3;
+}
+
+.search-output{
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+
+}
+@font-face {
+  font-family: 'archivo-black';
+  src: url('/./public/archivo-black.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
 }
 
-.App-link {
-  color: #61dafb;
+.text-input{
+  height: 100vh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.text-search{
+  height: 100vh;
+  font-size: calc(5px + 2vmin);
+
+}
+
+
+.search-button{
+  font-family: "archivo-black";
+  background-color: black;
+  -webkit-text-fill-color: white;
+  height: 40%;
+}
+
+.search-bar{
+  display: flex;
+  height: 10vh;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
 }

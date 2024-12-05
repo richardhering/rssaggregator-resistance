@@ -1,5 +1,9 @@
 import React, { useState } from "react";
+import { AppHeader } from "./components/AppHeader";
 import "./App.css";
+import { TextInput } from "./components/TextInput";
+import { Search } from "./components/Search";
+
 
 function App() {
   const [query, setQuery] = useState(""); // Track the search input
@@ -26,27 +30,19 @@ function App() {
   
 
   return (
+    
     <div id="rss-aggregator">
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)} // Update query on input
-        placeholder="Search tags (e.g., art,history -modern)"
-      />
-      <button onClick={searchFeeds}>Search</button>
-      <div>
-        {articles.map((article, index) => (
-          <div key={index}>
-            <a href={article.link} target="_blank" rel="noopener noreferrer">
-              {article.title}
-            </a>
-            <p>{new Date(article.published).toLocaleString()}</p>
-            {article.thumbnail && (
-              <img src={article.thumbnail} alt="Article Thumbnail" className="thumbnail" />
-            )}
-          </div>
-        ))}
+    <AppHeader/>
+      <div className="search-bar">
+        <TextInput 
+          query = {query}
+          setQuery = {setQuery}
+        />
+        <button className="search-button" onClick={searchFeeds}>Search</button>
       </div>
+      
+
+      <Search articles={articles}/>
       <div>
         <pre>{JSON.stringify(articles, null, 2)}</pre>
       </div>
