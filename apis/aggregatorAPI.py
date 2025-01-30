@@ -81,6 +81,7 @@ def process_entries(feed_data):
                 "tags": [tag.term for tag in getattr(entry, "tags", [])],
                 "thumbnail": None,
             }
+            #rint("Processed entry:", processed_entry)  # Debug output
             entries.append(processed_entry)
     return sorted(entries, key=lambda x: x["published"], reverse=True)
 
@@ -95,6 +96,7 @@ def deduplicate(entries):
 
 @app.route("/search", methods=["GET"])
 def search():
+    print("In search")
     query = request.args.get("query", "")
     feed_data = asyncio.run(fetch_feeds_async(feed_urls))
     entries = process_entries(feed_data)
@@ -127,93 +129,99 @@ def get_flickr_thumbnail(photo_id):
     except requests.RequestException as e:
         print("Error fetching Flickr thumbnail:", e)
         return None
-def parse_query(query):
-    """Parse the query into terms, handling AND, OR, NOT, and parentheses."""
-    # Remove extra spaces around parentheses for easier handling
-    query = re.sub(r'\s*\(\s*', '(', query)
-    query = re.sub(r'\s*\)\s*', ')', query)
     
-    # Split the query into terms while preserving multi-word tags enclosed in quotes
-    tokens = re.findall(r'\"[^\"]+\"|\S+|\(|\)', query)
+def clean_query(query):
+    cleaned_query = re.sub(r'[^\w\s\-"()|,]', '', query).strip()  # Escaped hyphen
+    cleaned_query = cleaned_query.replace("(", " ( ").replace(")", " ) ").replace(",", " , ").replace("|", " | ").replace("-", " - ")  # Add spaces around operators
+    cleaned_query = " ".join(cleaned_query.split()) #remove extra spaces
+    print(f"Cleaned query: {cleaned_query}")
+    return cleaned_query.lower()  
 
-    def parse_tokens(tokens):
-        """Recursive function to handle bracketing and boolean logic."""
-        stack = []
-        temp = []
-        
-        while tokens:
-            token = tokens.pop(0)
-            
-            if token == '(':
-                # Recursively parse the content inside parentheses
-                temp.append(parse_tokens(tokens))
-            elif token == ')':
-                # Return when encountering a closing parenthesis
-                stack.append(temp)
-                return stack
-            else:
-                # Process regular terms
-                temp.append(token)
-        
-        stack.append(temp)
-        return stack
+def parse_query(query):
+    query = clean_query(query)
+    tokens = re.findall(r'"[^"]+"|\S+|\(|\)|,|\||-', query)  # Correct regex to handle quotes
+    print(f"Tokens: {tokens}")
 
-    return parse_tokens(tokens)
+    def parse_expression(tokens):
+        expression = parse_term(tokens)
+        while tokens and tokens[0] == '|':
+            tokens.pop(0)  # Consume '|'
+            right = parse_term(tokens)
+            expression = ('|', expression, right)  # Create OR node in the tree
+        return expression
+
+    def parse_term(tokens):
+        term = parse_factor(tokens)
+        while tokens and tokens[0] == ',':
+            tokens.pop(0)  # Consume ','
+            right = parse_factor(tokens)
+            term = (',', term, right)  # Create AND node in the tree
+        return term  # Crucial: Return the term, even if no ',' was found
+
+    def parse_factor(tokens):
+        if tokens and tokens[0] == '(':
+            tokens.pop(0)  # Consume '('
+            expression = parse_expression(tokens)
+            tokens.pop(0)  # Consume ')'
+            return expression
+        elif tokens and tokens[0] == '-':
+            tokens.pop(0)  # Consume '-'
+            factor = parse_factor(tokens)  # Recursively parse the factor after '-'
+            return ('-', factor)  # Correctly create the NOT node
+        elif tokens:
+            term = tokens.pop(0)
+            return term.strip('"').lower()  # Term
+        return None
+
+    parsed_query = parse_expression(tokens)
+    print(f"Parsed expression tree: {parsed_query}")  # Debug print
+    return parsed_query
 
 def evaluate_query(entry, parsed_query):
-    """Evaluate the parsed query against an entry."""
-    tags = set(entry["tags"])
-    result = True
-    
-    for condition in parsed_query:
-        if isinstance(condition, list):
-            # Recursively evaluate nested conditions
-            result &= evaluate_query(entry, condition)
-        else:
-            # Process the AND, OR, NOT logic for each condition
-            include_and = {term.strip('"') for term in condition if "|" not in term and not term.startswith("-")}
-            include_or = {subterm for term in condition if "|" in term for subterm in term.split("|")}
-            exclude = {term[1:] for term in condition if term.startswith("-")}
+    tags = {tag.lower().strip() for tag in entry['tags']}
+    print(f"Entry tags (processed): {tags}")
 
-            # AND condition
-            and_condition = include_and <= tags
-            
-            # OR condition
-            or_condition = not include_or or any(tag in tags for tag in include_or)
+    def evaluate(expression):
+        if isinstance(expression, tuple):  # Operator node (AND, OR, NOT)
+            op = expression[0]
+            if op == '-':  # NOT
+                return not evaluate(expression[1])
+            else:  # AND or OR
+                left = evaluate(expression[1])
+                right = evaluate(expression[2])
+                if op == '|':
+                    return left or right
+                elif op == ',':
+                    return left and right
+        elif isinstance(expression, str):  # Term
+            return expression in tags
+        return False  # Handle unexpected types (shouldn't happen)
 
-            # NOT condition
-            not_condition = exclude.isdisjoint(tags)
-
-            result &= and_condition and or_condition and not_condition
-
+    result = evaluate(parsed_query)
+    print(f"Final query result: {result}")
     return result
 
 def boolean_search(entries, query):
-    """Perform boolean search with AND, OR, NOT functionality, including thumbnail generation."""
-    parsed_query = parse_query(query)  # Parse the query with bracketing support
+    """Perform boolean search on entries based on the query."""
+    print(f"Starting boolean search for query: {query}") # Debug print
+    parsed_query = parse_query(query)
 
     results = []
-
     for entry in entries:
-        # Evaluate the parsed query against the entry's tags
         if evaluate_query(entry, parsed_query):
-            # Generate thumbnail for archive.org
+            # Thumbnail logic (unchanged)
             if "archive.org/details" in entry["link"]:
                 item_id = entry["link"].split("/")[-1]
                 thumbnail_url = f"https://archive.org/services/img/{item_id}"
                 entry["thumbnail"] = thumbnail_url
-
-            # Generate thumbnail for Flickr
             elif "flickr.com" in entry["link"]:
-                photo_id = extract_photo_id(entry["link"])
+                photo_id = extract_photo_id(entry["link"])  # Assuming extract_photo_id is defined
                 if photo_id:
-                    thumbnail_url = get_flickr_thumbnail(photo_id)
+                    thumbnail_url = get_flickr_thumbnail(photo_id)  # Assuming get_flickr_thumbnail is defined
                     if thumbnail_url:
                         entry["thumbnail"] = thumbnail_url
-
             results.append(entry)
-
-    print("Search results:", results)
+    print(f"Search results: {results}")  # Debug output
     return results
 
 
