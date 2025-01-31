@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
     async function getTags() {
       try {
-        const response = await fetch("http://127.0.0.1:5000/count_tags");
+        const response = await fetch("https://aggregatorapi.onrender.com/count_tags");
         console.log("Response status:", response.status);
 
         if (!response.ok) {
@@ -43,7 +43,7 @@ function App() {
 
   async function searchFeeds() {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/search?query=${encodeURIComponent(query)}`);
+      const response = await fetch(`https://aggregatorapi.onrender.com/search?query=${encodeURIComponent(query)}`);
         // Debugging the response
       console.log("Response status:", response.status);
 
@@ -61,7 +61,6 @@ function App() {
   }
 
 
-  const [selectedTag, setSelectedTag] = useState(null);
 
   const handleTagClick = (tagText) => {
     console.log("Selected tag:", tagText);
