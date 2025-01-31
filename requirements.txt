@@ -1,0 +1,7 @@
+Flask
+Flask-CORS
+gunicorn
+aiohttp
+requests
+feedparser
+cachetools
