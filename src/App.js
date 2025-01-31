@@ -71,18 +71,20 @@ function App() {
   return (
     <div id="rss-aggregator">
       <AppHeader />
-      <div className="word-cloud">
-        {tags === undefined ? (
-          <div>Loading Word Cloud...</div> // Show loading state when tags are not yet available
-        ) : (
-          <WordCloud tags={tags} onTagClick={handleTagClick} /> // Render WordCloud when tags are available
-        )}
+      <div className="word-cloud-container">
+        <div className="word-cloud">
+          {tags === undefined ? (
+            <div>Loading Word Cloud...</div> // Show loading state when tags are not yet available
+          ) : (
+            <WordCloud tags={tags} onTagClick={handleTagClick} /> // Render WordCloud when tags are available
+          )}
+        </div>
       </div>
       <div className="search-bar">
         <TextInput query={query} setQuery={setQuery} />
-        <button className="search-button" onClick={searchFeeds}>
-          Search
-        </button>
+          <button className="search-button" onClick={searchFeeds}>
+            Search
+          </button>
       </div>
       <Search articles={articles} />
       <div>

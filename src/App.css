@@ -154,17 +154,22 @@ p {
 
 .text-search{
   height: 100vh;
-  font-size: calc(5px + 2vmin);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size: 100%;
 
 }
+
 
 
 .search-button{
   font-family: "archivo-black";
   background-color: black;
   -webkit-text-fill-color: white;
-  height: 40%;
 }
+
 
 .search-bar{
   display: flex;
@@ -172,4 +177,24 @@ p {
   align-items: center;
   flex-direction: row;
   justify-content: center;
+}
+
+.word-cloud-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;  
+}
+.word-cloud {
+  width: 60vw; /* Or a fixed width like 800px */
+  height: 30vh; /* Or a fixed height like 400px */
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* Centers horizontally */
+  align-items: center;     /* Centers vertically */
+}
+
+.word-cloud > * { /* targets direct children of .word-cloud */
+  max-width: 100%; /* Prevents content from overflowing horizontally */
+  max-height: 100%; /* Prevents content from overflowing vertically */
 }

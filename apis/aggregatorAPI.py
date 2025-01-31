@@ -130,6 +130,7 @@ def get_flickr_thumbnail(photo_id):
         print("Error fetching Flickr thumbnail:", e)
         return None
     
+
 def clean_query(query):
     cleaned_query = re.sub(r'[^\w\s\-"()|,]', '', query).strip()  # Escaped hyphen
     cleaned_query = cleaned_query.replace("(", " ( ").replace(")", " ) ").replace(",", " , ").replace("|", " | ").replace("-", " - ")  # Add spaces around operators
@@ -137,10 +138,12 @@ def clean_query(query):
     print(f"Cleaned query: {cleaned_query}")
     return cleaned_query.lower()  
 
+
 def parse_query(query):
     query = clean_query(query)
     tokens = re.findall(r'"[^"]+"|\S+|\(|\)|,|\||-', query)  # Correct regex to handle quotes
     print(f"Tokens: {tokens}")
+
 
     def parse_expression(tokens):
         expression = parse_term(tokens)

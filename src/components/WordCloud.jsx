@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import anychart from "anychart";
 
 // Function to convert the data into the required format
@@ -35,9 +35,22 @@ export function WordCloud({ tags, onTagClick }) {
       chart.angles([0]);
       chart.colorRange(true);
       chart.colorRange().length("80%");
+      chart.normal().fontFamily("Arial");
+      var customColorScale = anychart.scales.linearColor();
+      customColorScale.colors(["#000000", "#7eed81"]);
+
+      // set the color scale as the color scale of the chart
+      chart.colorScale(customColorScale);
+
+      // add and configure a color range
+      chart.colorRange().enabled(true);
+      chart.colorRange().length("90%");
 
       chart.listen("pointClick", function (e) {
-        const tagText = e.point.get("x"); // Get the clicked tag's text
+        let tagText = e.point.get("x"); // Get the clicked tag's text
+        if (tagText.includes(" ")) {
+          tagText = `"${tagText}"`; // Wrap in quotes using template literals
+        }
         if (onTagClick) {
           onTagClick(tagText); // Pass the tagText to the parent
         }
