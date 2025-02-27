@@ -1,12 +1,11 @@
 import { Card } from "./Card";
-export function Search({articles}){
-    return(
-      <div className="search-output">
-        {articles.map((article, index) => (
-          <div key={index}>
-            <Card article={article}/>
-            
-          </div>
-        ))}
-      </div>);
+
+export function Search({ articles, loading }) {
+  return (
+    <div className="search-output">
+      {articles.map((article, index) => (
+        <Card key={index} article={article} loading={loading} />
+      ))}
+    </div>
+  );
 }

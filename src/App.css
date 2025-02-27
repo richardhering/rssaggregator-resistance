@@ -72,10 +72,89 @@
   width: 100%;
 }
 
+.loading-placeholder {
+  background: linear-gradient(90deg, #ccc 25%, #ddd 50%, #ccc 75%);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+}
+
+.card-placeholder .placeholder-title {
+  /* Handling overflow in the title */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis if the text overflows */
+  width: 100%; /* Ensure it takes the full width */
+  text-align: center;
+}
 .thumbnail {
   width: 100px;
   height: auto;
   margin-bottom: 10px;
+}
+@keyframes loadingPulse {
+  0% {
+    background-position: -100px 0;
+  }
+  100% {
+    background-position: 100px 0;
+  }
+}
+
+.loading-placeholder {
+  background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+}
+
+/* Card container for loading */
+.card-placeholder {
+  width: 70vh; /* Match actual card width */
+  height: 180px; /* Set a reasonable height */
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  animation: loadingPulse 1.5s infinite linear;
+
+  gap: 10px;
+}
+
+/* Thumbnail placeholder */
+.placeholder-thumbnail {
+  width: 80px;
+  height: 80px;
+  animation: loadingPulse 1.5s infinite linear;
+
+  border-radius: 5px;
+  background-color: rgb(204, 204, 204);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+}
+
+/* Title placeholder */
+.placeholder-title {
+  width: 60%;
+  height: 16px;
+  border-radius: 4px;
+  background-color: rgb(204, 204, 204);
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+  margin-top: 10px;
+}
+
+/* Smaller subtitle placeholder */
+.placeholder-subtitle {
+  width: 40%;
+  height: 12px;
+  border-radius: 3px;
+  background-color: grey;
+  background-size: 200% 100%;
+  animation: loadingPulse 1.5s infinite linear;
+  margin-top: 5px;
 }
 
 h3 {
@@ -151,7 +230,13 @@ p {
 .text-input{
   height: 100vh;
 }
-
+.noResults{
+  display: flex;
+  width: 100%;
+  flex: auto;
+  justify-content: center;
+  align-items: center;
+}
 .text-search{
   height: 100vh;
   display: flex;
@@ -163,11 +248,12 @@ p {
 }
 
 
-
 .search-button{
   font-family: "archivo-black";
-  background-color: black;
-  -webkit-text-fill-color: white;
+  background-color: rgb(255, 255, 255);
+  -webkit-text-fill-color: rgb(0, 0, 0);
+  outline: none;
+
 }
 
 
@@ -198,3 +284,4 @@ p {
   max-width: 100%; /* Prevents content from overflowing horizontally */
   max-height: 100%; /* Prevents content from overflowing vertically */
 }
+

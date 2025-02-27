@@ -10,8 +10,8 @@ function convertToWordCloudFormat(data) {
     const formattedData = Object.keys(data)
       .filter(key => key.trim() !== "") // Filter out empty strings
       .map((key) => ({
-        x: key,    // Tag name (e.g., "Persian")
-        value: data[key] // Frequency (e.g., 121000000)
+        x: key,   
+        value: data[key]
       }));
   
     console.log("Formatted Data:", formattedData); // For debugging
