@@ -1,7 +1,7 @@
 export const SyntaxExplanation = () => {
     return(
         <div className="syntax-container">
-        <h1>How to use:</h1>
+        <h1>Resistance Archive</h1>
         <p>Search supports the following operators:</p>
         <table style={{ border: '1px solid black', borderCollapse: 'collapse' }}>
           <thead>
