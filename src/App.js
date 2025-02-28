@@ -3,6 +3,7 @@ import "./App.css";
 import { TextInput } from "./components/TextInput";
 import { Search } from "./components/Search";
 import { WordCloud } from "./components/WordCloud";
+import { SyntaxExplanation } from "./components/SyntaxExplanation";
 
 function App() {
   const [query, setQuery] = useState(""); // Track the search input
@@ -63,6 +64,7 @@ function App() {
 
   return (
     <div id="rss-aggregator">
+      <SyntaxExplanation/>
       <div className="word-cloud-container">
         <div className="word-cloud">
           {tags.length === 0 ? (

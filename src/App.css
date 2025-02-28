@@ -230,9 +230,18 @@ p {
 .text-input{
   height: 100vh;
 }
-.noResults{
+.noResults {
   display: flex;
   width: 100%;
+  flex: auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.syntax-container{
+  display: flex;
+  width: 100%;
+  flex-direction: column;
   flex: auto;
   justify-content: center;
   align-items: center;
